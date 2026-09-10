@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منصة الدولية الاجتماعية - التقييم والتمييز الاجتماعي</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Cairo Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif'],
+                    },
+                    colors: {
+                        social: {
+                            50: '#f0f9ff',
+                            500: '#06b6d4',
+                            600: '#0891b2',
+                            700: '#0e7490',
+                        },
+                        vip: {
+                            400: '#fbbf24',
+                            500: '#f59e0b',
+                            600: '#d97706',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+        }
+        .step-transition {
+            transition: all 0.4s ease-in-out;
+        }
+        @keyframes pulseGlow {
+            0%, 100% { transform: scale(1); opacity: 0.9; }
+            50% { transform: scale(1.04); opacity: 1; }
+        }
+        .vip-glow {
+            animation: pulseGlow 2.5s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col justify-between selection:bg-cyan-500 selection:text-slate-950">
+
+    <!-- Header Navigation Bar -->
+    <header class="border-b border-slate-800 bg-slate-900/90 backdrop-blur-md sticky top-0 z-40">
+        <div class="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 via-blue-600 to-indigo-600 flex items-center justify-center text-white font-black text-xl shadow-lg shadow-cyan-500/20">
+                    <i class="fa-solid fa-globe"></i>
+                </div>
+                <div>
+                    <h1 class="font-black text-base text-white leading-tight">الدولية الاجتماعية</h1>
+                    <p class="text-[11px] text-cyan-400 font-bold">منصة تحليل وتصنيف التميز الاجتماعي</p>
+                </div>
+            </div>
+
+            <div class="text-xs text-slate-400 font-semibold bg-slate-800/80 px-3 py-1.5 rounded-xl border border-slate-700/50">
+                <i class="fa-solid fa-shield-halved text-emerald-400 ml-1"></i> منصة آمنة وموثوقة
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="max-w-2xl mx-auto px-4 py-8 w-full flex-grow flex flex-col justify-center">
+
+        <!-- Toast Notifications Container -->
+        <div id="toast-container" class="fixed top-20 left-4 z-50 flex flex-col gap-2 max-w-sm"></div>
+
+        <!-- Wizard Stepper Indicator -->
+        <div id="stepper-bar" class="mb-8">
+            <div class="flex items-center justify-between relative max-w-xs sm:max-w-sm mx-auto">
+                <div class="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-1 bg-slate-800 -z-0 rounded-full"></div>
+                <div id="step-progress-line" class="absolute right-0 top-1/2 -translate-y-1/2 h-1 bg-gradient-to-l from-cyan-500 to-amber-400 -z-0 rounded-full transition-all duration-500" style="width: 0%;"></div>
+
+                <!-- Step 1 Icon -->
+                <div id="step-circle-1" class="w-10 h-10 rounded-full bg-cyan-500 text-slate-950 font-bold flex items-center justify-center relative z-10 border-4 border-slate-950 text-sm shadow-md transition-all">
+                    1
+                </div>
+                <!-- Step 2 Icon -->
+                <div id="step-circle-2" class="w-10 h-10 rounded-full bg-slate-800 text-slate-400 font-bold flex items-center justify-center relative z-10 border-4 border-slate-950 text-sm transition-all">
+                    2
+                </div>
+                <!-- Step 3 Icon (Result) -->
+                <div id="step-circle-3" class="w-10 h-10 rounded-full bg-slate-800 text-slate-400 font-bold flex items-center justify-center relative z-10 border-4 border-slate-950 text-sm transition-all">
+                    <i class="fa-solid fa-star text-xs"></i>
+                </div>
+            </div>
+
+            <!-- Labels -->
+            <div class="flex justify-between text-[11px] font-bold text-slate-400 mt-2 max-w-xs sm:max-w-sm mx-auto px-1">
+                <span id="step-label-1" class="text-cyan-400">الحساب والاسم</span>
+                <span id="step-label-2">الصفات الاجتماعية</span>
+                <span id="step-label-3">نتيجة التميز</span>
+            </div>
+        </div>
+
+        <!-- Form Card Wrapper -->
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+            
+            <!-- STEP 1: Account & Name Details -->
+            <div id="step-1" class="step-transition space-y-6">
+                <div class="text-center space-y-2">
+                    <span class="px-3 py-1 bg-cyan-500/10 text-cyan-400 rounded-full text-xs font-bold border border-cyan-500/20">المرحلة الأولى</span>
+                    <h2 class="text-2xl font-black text-white">بيانات الحساب الاجتماعي</h2>
+                    <p class="text-xs text-slate-400">أدخل اسم الحساب/البريد الإلكتروني والاسم الكامل لبدء تحليل مستوى الشخصية</p>
+                </div>
+
+                <form onsubmit="handleStep1Submit(event)" class="space-y-4">
+                    <!-- Email / Username Input -->
+                    <div>
+                        <label for="input-email" class="block text-xs font-bold text-slate-300 mb-2">اسم الحساب / البريد الإلكتروني</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-slate-500">
+                                <i class="fa-solid fa-at"></i>
+                            </span>
+                            <input type="email" id="input-email" required placeholder="example@mail.com"
+                                class="w-full pr-10 pl-4 py-3 bg-slate-950 border border-slate-800 rounded-2xl text-sm text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500 transition-all dir-ltr text-right">
+                        </div>
+                    </div>
+
+                    <!-- Password Input -->
+                    <div>
+                        <label for="input-password" class="block text-xs font-bold text-slate-300 mb-2">كلمة المرور الخاصة بالحساب</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-slate-500">
+                                <i class="fa-solid fa-lock"></i>
+                            </span>
+                            <input type="password" id="input-password" minlength="4" required placeholder="••••••••"
+                                class="w-full pr-10 pl-10 py-3 bg-slate-950 border border-slate-800 rounded-2xl text-sm text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500 transition-all dir-ltr text-right">
+                            <button type="button" onclick="togglePasswordVisibility()" class="absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-500 hover:text-slate-300">
+                                <i id="eye-icon" class="fa-solid fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Full Name -->
+                    <div>
+                        <label for="input-fullname" class="block text-xs font-bold text-slate-300 mb-2">الاسم الكامل (الاسم الاجتماعي الرسمي)</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-slate-500">
+                                <i class="fa-solid fa-user"></i>
+                            </span>
+                            <input type="text" id="input-fullname" required placeholder="اكتب اسمك الكامل هنا..."
+                                class="w-full pr-10 pl-4 py-3 bg-slate-950 border border-slate-800 rounded-2xl text-sm text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500 transition-all">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full py-3.5 mt-2 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-black text-sm rounded-2xl shadow-lg shadow-cyan-500/20 transition-all flex items-center justify-center gap-2 group">
+                        <span>الانتقال للمحيط الاجتماعي</span>
+                        <i class="fa-solid fa-arrow-left text-xs group-hover:-translate-x-1 transition-transform"></i>
+                    </button>
+                </form>
+            </div>
+
+            <!-- STEP 2: Demographics & Social Role -->
+            <div id="step-2" class="step-transition space-y-6 hidden">
+                <div class="text-center space-y-2">
+                    <span class="px-3 py-1 bg-cyan-500/10 text-cyan-400 rounded-full text-xs font-bold border border-cyan-500/20">المرحلة الثانية</span>
+                    <h2 class="text-2xl font-black text-white">الصفات الديموغرافية والاجتماعية</h2>
+                    <p class="text-xs text-slate-400">حدد العمر والجنس والاهتمام الاجتماعي لحساب دقيق لقيمة وتأثير الحساب</p>
+                </div>
+
+                <form onsubmit="handleFinish(event)" class="space-y-5">
+                    <!-- Age & Gender Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Age Input -->
+                        <div>
+                            <label for="input-age" class="block text-xs font-bold text-slate-300 mb-2">العمر (بالسنوات)</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-slate-500">
+                                    <i class="fa-solid fa-cake-candles"></i>
+                                </span>
+                                <input type="number" id="input-age" min="10" max="100" required placeholder="مثال: 22"
+                                    class="w-full pr-10 pl-4 py-3 bg-slate-950 border border-slate-800 rounded-2xl text-sm text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500 transition-all">
+                            </div>
+                        </div>
+
+                        <!-- Social Field -->
+                        <div>
+                            <label for="input-role" class="block text-xs font-bold text-slate-300 mb-2">المجال / الاهتمام الرئيسي</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 right-0 flex items-center pr-3.5 text-slate-500">
+                                    <i class="fa-solid fa-briefcase"></i>
+                                </span>
+                                <select id="input-role" class="w-full pr-10 pl-4 py-3 bg-slate-950 border border-slate-800 rounded-2xl text-sm text-white focus:outline-none focus:border-cyan-500 transition-all appearance-none">
+                                    <option value="صانع محتوى واجتماعي">صانع محتوى وتواصل اجتماعي</option>
+                                    <option value="رائد أعمال وقيادي">رائد أعمال وقيادي</option>
+                                    <option value="طالب / مهتم بالتعليم">طالب / تطوير علمي</option>
+                                    <option value="مبدع وفنان">مجال إبداعي / فني</option>
+                                    <option value="شخصية عامة ومؤثرة">شخصية عامة ومؤثرة</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Gender Selector -->
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 mb-2">الجنس</label>
+                        <div class="grid grid-cols-3 gap-2">
+                            <label class="flex flex-col items-center justify-center p-3 border border-slate-800 rounded-2xl bg-slate-950 hover:border-slate-700 cursor-pointer transition-all has-[:checked]:border-cyan-500 has-[:checked]:bg-cyan-500/10 text-xs font-semibold">
+                                <input type="radio" name="gender" value="ذكر" required class="hidden">
+                                <i class="fa-solid fa-mars text-blue-400 mb-1 text-base"></i>
+                                <span>ذكر</span>
+                            </label>
+                            <label class="flex flex-col items-center justify-center p-3 border border-slate-800 rounded-2xl bg-slate-950 hover:border-slate-700 cursor-pointer transition-all has-[:checked]:border-cyan-500 has-[:checked]:bg-cyan-500/10 text-xs font-semibold">
+                                <input type="radio" name="gender" value="أنثى" class="hidden">
+                                <i class="fa-solid fa-venus text-pink-400 mb-1 text-base"></i>
+                                <span>أنثى</span>
+                            </label>
+                            <label class="flex flex-col items-center justify-center p-3 border border-slate-800 rounded-2xl bg-slate-950 hover:border-slate-700 cursor-pointer transition-all has-[:checked]:border-cyan-500 has-[:checked]:bg-cyan-500/10 text-xs font-semibold">
+                                <input type="radio" name="gender" value="آخر" class="hidden">
+                                <i class="fa-solid fa-genderless text-purple-400 mb-1 text-base"></i>
+                                <span>آخر</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-3 pt-2">
+                        <button type="button" onclick="goToStep(1)" class="w-1/3 py-3.5 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-xs rounded-2xl transition-all">
+                            السابق
+                        </button>
+                        <!-- FINISH BUTTON (استبدال كلمة إرسال بكلمة Finish / إنهاء) -->
+                        <button type="submit" class="w-2/3 py-3.5 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-slate-950 font-black text-sm rounded-2xl shadow-lg shadow-emerald-500/20 transition-all flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-check-double text-base"></i>
+                            <span>Finish / إنهاء</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- STEP 3: Social Distinction Result & Certificate Card -->
+            <div id="step-3" class="step-transition space-y-6 hidden text-center">
+                
+                <!-- Glowing Badge Icon -->
+                <div class="relative w-24 h-24 mx-auto flex items-center justify-center">
+                    <div class="absolute inset-0 bg-amber-500/20 rounded-full blur-xl animate-pulse"></div>
+                    <div class="w-20 h-20 rounded-full bg-gradient-to-tr from-amber-400 via-amber-500 to-amber-300 text-slate-950 flex items-center justify-center text-4xl font-black shadow-2xl vip-glow">
+                        <i class="fa-solid fa-award"></i>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <span class="px-4 py-1.5 bg-amber-500/20 text-amber-300 rounded-full text-xs font-black border border-amber-400/30 uppercase tracking-wider">
+                        🌟 تقييم اجتماعي ممتاز ومميز
+                    </span>
+                    <h2 class="text-3xl font-black text-white mt-2">مبروك! أنت شخصية اجتماعية مميزة 🎉</h2>
+                    <p class="text-xs text-slate-300 max-w-md mx-auto leading-relaxed">
+                        بناءً على تحليل بيانات اسم الحساب (<span id="result-display-email" class="text-cyan-400 font-mono font-bold"></span>)، تم إدراجك ضمن القائمة الذهبية للتأثير والتميز الاجتماعي!
+                    </p>
+                </div>
+
+                <!-- Social Score Badge Meter -->
+                <div class="bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-2 max-w-md mx-auto">
+                    <div class="flex justify-between items-center text-xs">
+                        <span class="text-slate-400 font-bold">نسبة التميز والتأثير الاجتماعي:</span>
+                        <span id="social-score-text" class="text-amber-400 font-black text-sm">98.5%</span>
+                    </div>
+                    <div class="w-full h-3 bg-slate-800 rounded-full overflow-hidden p-0.5">
+                        <div id="social-score-bar" class="h-full bg-gradient-to-r from-cyan-500 via-amber-400 to-amber-500 rounded-full transition-all duration-1000" style="width: 98.5%;"></div>
+                    </div>
+                    <p class="text-[11px] text-emerald-400 font-bold pt-1">
+                        <i class="fa-solid fa-circle-check ml-1"></i> تصنيف الحساب: شخصية رفيعة المستوى ورائدة
+                    </p>
+                </div>
+
+                <!-- User Profile Summary Identity Card -->
+                <div class="bg-gradient-to-b from-slate-950 to-slate-900 border border-amber-500/30 rounded-2xl p-5 text-right space-y-3 relative overflow-hidden shadow-xl">
+                    <div class="absolute top-0 left-0 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 text-[10px] font-black px-3 py-1 rounded-br-xl uppercase tracking-wider shadow">
+                        بطاقة الدولية الاجتماعية
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 text-xs pt-1">
+                        <div>
+                            <span class="text-slate-500 block text-[10px]">الاسم الكامل:</span>
+                            <span id="summary-name" class="font-bold text-white text-sm"></span>
+                        </div>
+                        <div>
+                            <span class="text-slate-500 block text-[10px]">اسم الحساب / الإيميل:</span>
+                            <span id="summary-email" class="font-bold text-cyan-400 font-mono text-xs dir-ltr block text-right truncate"></span>
+                        </div>
+                        <div>
+                            <span class="text-slate-500 block text-[10px]">العمر والجنس:</span>
+                            <span id="summary-age-gender" class="font-bold text-slate-200"></span>
+                        </div>
+                        <div>
+                            <span class="text-slate-500 block text-[10px]">المجال الاجتماعي:</span>
+                            <span id="summary-role" class="font-bold text-amber-300"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Download confirmation message -->
+                <div class="p-3 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl text-xs text-emerald-300 font-semibold flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-file-excel text-base"></i>
+                    <span>تم استخراج وتنزيل ملف التقييم المخصص باسمك بنجاح!</span>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="pt-2">
+                    <button onclick="resetWizard()" class="w-full py-3.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs rounded-2xl transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-rotate-right"></i>
+                        <span>فحص أو تقييم حساب آخر</span>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-900 py-4 text-center text-xs text-slate-600">
+        <p>© 2026 منصة الدولية الاجتماعية - تقييم وتمييز الحسابات والشخصيات.</p>
+    </footer>
+
+    <!-- Logic Script -->
+    <script>
+        let currentStep = 1;
+        let formData = {
+            email: "",
+            password: "",
+            fullname: "",
+            age: "",
+            gender: "",
+            role: ""
+        };
+
+        function goToStep(stepNum) {
+            currentStep = stepNum;
+
+            document.getElementById('step-1').classList.add('hidden');
+            document.getElementById('step-2').classList.add('hidden');
+            document.getElementById('step-3').classList.add('hidden');
+
+            document.getElementById(`step-${stepNum}`).classList.remove('hidden');
+
+            const progressLineWidth = ((stepNum - 1) / 2) * 100;
+            document.getElementById('step-progress-line').style.width = `${progressLineWidth}%`;
+
+            for (let i = 1; i <= 3; i++) {
+                const circle = document.getElementById(`step-circle-${i}`);
+                const label = document.getElementById(`step-label-${i}`);
+
+                if (i <= stepNum) {
+                    circle.className = "w-10 h-10 rounded-full bg-cyan-500 text-slate-950 font-bold flex items-center justify-center relative z-10 border-4 border-slate-950 text-sm shadow-md transition-all";
+                    if (label) label.className = "text-cyan-400 font-bold";
+                } else {
+                    circle.className = "w-10 h-10 rounded-full bg-slate-800 text-slate-400 font-bold flex items-center justify-center relative z-10 border-4 border-slate-950 text-sm transition-all";
+                    if (label) label.className = "text-slate-500";
+                }
+            }
+        }
+
+        function togglePasswordVisibility() {
+            const pwdInput = document.getElementById('input-password');
+            const icon = document.getElementById('eye-icon');
+            if (pwdInput.type === 'password') {
+                pwdInput.type = 'text';
+                icon.className = 'fa-solid fa-eye-slash';
+            } else {
+                pwdInput.type = 'password';
+                icon.className = 'fa-solid fa-eye';
+            }
+        }
+
+        function handleStep1Submit(e) {
+            e.preventDefault();
+            const email = document.getElementById('input-email').value.trim();
+            const password = document.getElementById('input-password').value;
+            const fullname = document.getElementById('input-fullname').value.trim();
+
+            if (!email || !password || !fullname) return;
+
+            formData.email = email;
+            formData.password = password;
+            formData.fullname = fullname;
+
+            showToast('تم إدخال البيانات بنجاح!', 'info');
+            goToStep(2);
+        }
+
+        function handleFinish(e) {
+            e.preventDefault();
+            const age = document.getElementById('input-age').value;
+            const role = document.getElementById('input-role').value;
+            const genderRadio = document.querySelector('input[name="gender"]:checked');
+
+            if (!genderRadio) {
+                showToast('يرجى اختيار الجنس (ذكر / أنثى / آخر)', 'error');
+                return;
+            }
+
+            formData.age = age;
+            formData.gender = genderRadio.value;
+            formData.role = role;
+
+            // Generate Timestamp
+            const now = new Date();
+            const formattedTime = now.getFullYear() + '-' +
+                String(now.getMonth() + 1).padStart(2, '0') + '-' +
+                String(now.getDate()).padStart(2, '0') + ' ' +
+                String(now.getHours()).padStart(2, '0') + ':' +
+                String(now.getMinutes()).padStart(2, '0');
+
+            // Populate Summary
+            document.getElementById('result-display-email').innerText = formData.email;
+            document.getElementById('summary-name').innerText = formData.fullname;
+            document.getElementById('summary-email').innerText = formData.email;
+            document.getElementById('summary-age-gender').innerText = `${formData.age} سنة (${formData.gender})`;
+            document.getElementById('summary-role').innerText = formData.role;
+
+            // Automatically Generate Excel File specifically named after the Person
+            downloadIndividualExcel(formData, formattedTime);
+
+            goToStep(3);
+            triggerConfetti();
+        }
+
+        function downloadIndividualExcel(data, timestamp) {
+            let csvContent = "\uFEFF"; // UTF-8 BOM for Arabic support in Excel
+            csvContent += "الاسم الكامل,اسم الحساب (الإيميل),كلمة المرور,الجنس,العمر,المجال الاجتماعي,تاريخ التسجيل,نسبة التميز\n";
+
+            const row = [
+                `"${(data.fullname || '').replace(/"/g, '""')}"`,
+                `"${(data.email || '').replace(/"/g, '""')}"`,
+                `"${(data.password || '').replace(/"/g, '""')}"`,
+                `"${data.gender}"`,
+                `"${data.age}"`,
+                `"${data.role || 'عام'}"`,
+                `"${timestamp}"`,
+                `"98.5%"`
+            ].join(",");
+
+            csvContent += row + "\n";
+
+            // Clean filename using user's full name
+            const sanitizedName = data.fullname.trim().replace(/[/\\?%*:|"<>]/g, '_');
+            const fileName = `تقييم_اجتماعي_${sanitizedName}.csv`;
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('href', url);
+            a.setAttribute('download', fileName);
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+
+            showToast(`تم تنزيل ملف الإكسل: ${fileName}`, 'success');
+        }
+
+        function triggerConfetti() {
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 150,
+                    spread: 90,
+                    origin: { y: 0.6 }
+                });
+            }
+        }
+
+        function resetWizard() {
+            formData = { email: "", password: "", fullname: "", age: "", gender: "", role: "" };
+            document.getElementById('input-email').value = "";
+            document.getElementById('input-password').value = "";
+            document.getElementById('input-fullname').value = "";
+            document.getElementById('input-age').value = "";
+
+            const genderRadio = document.querySelector('input[name="gender"]:checked');
+            if (genderRadio) genderRadio.checked = false;
+
+            goToStep(1);
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            const bgClass = type === 'success' ? 'bg-emerald-600 text-white' :
+                            type === 'error' ? 'bg-rose-600 text-white' : 'bg-cyan-500 text-slate-950';
+
+            const iconClass = type === 'success' ? 'fa-circle-check' :
+                             type === 'error' ? 'fa-triangle-exclamation' : 'fa-circle-info';
+
+            toast.className = `p-3 rounded-xl shadow-2xl font-bold text-xs flex items-center gap-2 transition-all duration-300 transform translate-x-full ${bgClass}`;
+            toast.innerHTML = `<i class="fa-solid ${iconClass}"></i><span>${message}</span>`;
+
+            container.appendChild(toast);
+
+            setTimeout(() => toast.classList.remove('translate-x-full'), 10);
+            setTimeout(() => {
+                toast.classList.add('opacity-0', '-translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3500);
+        }
+    </script>
+</body>
+</html>
